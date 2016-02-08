@@ -35,7 +35,14 @@ typedef NS_ENUM(NSUInteger, SSKeychainAccessibility) {
 /** SecAccessControlCreateFlags */
 typedef NS_OPTIONS(NSUInteger, SSKeychainCreateFlags) {
 	/** kSecAccessControlUserPresence */
-	SSKeychainCreateFlagUserPresence = 1UL << 0
+	SSKeychainCreateFlagUserPresence 		= 1UL << 0,
+	SSKeychainCreateFlagTouchIDAny   		= 1 << 1,
+	SSKeychainCreateFlagTouchIDCurrentSet 	= 1 << 3,
+	SSKeychainCreateFlagDevicePasscode 		= 1 << 4,
+	SSKeychainCreateFlagOr 					= 1 << 14,
+	SSKeychainCreateFlagAnd 				= 1 << 15,
+	SSKeychainCreateFlagPrivateKeyUsage	    = 1 << 30,
+	SSKeychainCreateFlagApplicationPassword = 1 << 31
 };
 
 extern CFTypeRef getSecAttrAccessibility(SSKeychainAccessibility ssAttr);
