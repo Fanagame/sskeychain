@@ -15,6 +15,7 @@
 @synthesize service = _service;
 @synthesize label = _label;
 @synthesize passwordData = _passwordData;
+@synthesize accessibility = _accessibility;
 
 #if __IPHONE_3_0 && TARGET_OS_IPHONE
 @synthesize accessGroup = _accessGroup;
@@ -48,7 +49,7 @@
 		}
 		[query setObject:self.passwordData forKey:(__bridge id)kSecValueData];
 #if __IPHONE_4_0 && TARGET_OS_IPHONE
-		CFTypeRef accessibilityType = [SSKeychain accessibilityType];
+		CFTypeRef accessibilityType = (__bridge CFTypeRef)(self.accessibility);
 		if (accessibilityType) {
 			[query setObject:(__bridge id)accessibilityType forKey:(__bridge id)kSecAttrAccessible];
 		}
@@ -105,7 +106,7 @@
 		[changes setObject:self.label forKey:(__bridge id)kSecAttrLabel];
 	}
 #if __IPHONE_4_0 && TARGET_OS_IPHONE
-	CFTypeRef accessibilityType = [SSKeychain accessibilityType];
+	CFTypeRef accessibilityType = (__bridge CFTypeRef)(self.accessibility);
 	if (accessibilityType) {
 		[changes setObject:(__bridge id)accessibilityType forKey:(__bridge id)kSecAttrAccessible];
 	}
@@ -162,7 +163,7 @@
 	[query setObject:@YES forKey:(__bridge id)kSecReturnAttributes];
 	[query setObject:(__bridge id)kSecMatchLimitAll forKey:(__bridge id)kSecMatchLimit];
 #if __IPHONE_4_0 && TARGET_OS_IPHONE
-	CFTypeRef accessibilityType = [SSKeychain accessibilityType];
+	CFTypeRef accessibilityType = (__bridge CFTypeRef)(self.accessibility);
 	if (accessibilityType) {
 		[query setObject:(__bridge id)accessibilityType forKey:(__bridge id)kSecAttrAccessible];
 	}
@@ -218,6 +219,45 @@
 	return YES;
 }
 
+#if __IPHONE_4_0 && TARGET_OS_IPHONE
+- (BOOL) fetchAttributes:(NSError *__autoreleasing *)error {
+	OSStatus status = SSKeychainErrorBadArguments;
+	if (!self.service || !self.account) {
+		if (error) {
+			*error = [[self class] errorWithCode:status];
+		}
+		return NO;
+	}
+	
+	CFTypeRef result = NULL;
+	NSMutableDictionary *query = [self query];
+	[query setObject:@YES forKey:(__bridge id)kSecReturnAttributes];
+	[query setObject:(__bridge id)kSecMatchLimitOne forKey:(__bridge id)kSecMatchLimit];
+	
+#if __IPHONE_8_0 || __MAC_10_10
+	if (self.useOperationPrompt) {
+		[query setObject:self.useOperationPrompt forKey:(__bridge id)kSecUseOperationPrompt];
+	}
+#endif
+	
+	status = SecItemCopyMatching((__bridge CFDictionaryRef)query, &result);
+	
+	if (status != errSecSuccess) {
+		if (error) {
+			*error = [[self class] errorWithCode:status];
+		}
+		return NO;
+	}
+	
+	NSDictionary *attributes = (__bridge_transfer NSDictionary *)result;
+	NSString *accessibility = attributes[(__bridge id)kSecAttrAccessible];
+	if (![accessibility isKindOfClass:[NSString class]])
+		accessibility = nil;
+	self.accessibility = accessibility;
+	
+	return YES;
+}
+#endif
 
 #pragma mark - Accessors
 

@@ -40,6 +40,11 @@ typedef NS_ENUM(NSUInteger, SSKeychainQuerySynchronizationMode) {
 /** kSecAttrLabel */
 @property (nonatomic, copy) NSString *label;
 
+#if __IPHONE_4_0 && TARGET_OS_IPHONE
+/** kSecAttrAccessible */
+@property (nonatomic, copy) NSString *accessibility;
+#endif
+
 #if __IPHONE_3_0 && TARGET_OS_IPHONE
 /** kSecAttrAccessGroup (only used on iOS) */
 @property (nonatomic, copy) NSString *accessGroup;
@@ -138,6 +143,18 @@ typedef NS_ENUM(NSUInteger, SSKeychainQuerySynchronizationMode) {
  */
 - (BOOL)fetch:(NSError **)error;
 
+#if __IPHONE_4_0 && TARGET_OS_IPHONE
+/**
+ Fetch the keychain item that matches the given account, service, and access
+ group. The `accessibility` property will be populated unless
+ an error occurs. The value of `accessibility` is ignoreed while fetching.
+ 
+ @param error Populated should an error occur.
+ 
+ @return `YES` if fetching was successful, `NO` otherwise.
+ */
+- (BOOL)fetchAttributes:(NSError **)error;
+#endif
 
 ///-----------------------------
 /// @name Synchronization Status

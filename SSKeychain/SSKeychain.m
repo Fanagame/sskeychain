@@ -73,6 +73,9 @@ NSString *const kSSKeychainWhereKey = @"svce";
 	query.service = serviceName;
 	query.account = account;
 	query.password = password;
+#if __IPHONE_4_0 && TARGET_OS_IPHONE
+	query.accessibility = (__bridge NSString *)([self accessibilityType]);
+#endif
 	return [query save:error];
 }
 
@@ -86,6 +89,9 @@ NSString *const kSSKeychainWhereKey = @"svce";
     query.service = serviceName;
     query.account = account;
     query.passwordData = password;
+#if __IPHONE_4_0 && TARGET_OS_IPHONE
+	query.accessibility = (__bridge NSString *)([self accessibilityType]);
+#endif
     return [query save:error];
 }
 
@@ -107,6 +113,9 @@ NSString *const kSSKeychainWhereKey = @"svce";
 + (NSArray *)accountsForService:(NSString *)serviceName error:(NSError *__autoreleasing *)error {
     SSKeychainQuery *query = [[SSKeychainQuery alloc] init];
     query.service = serviceName;
+	#if __IPHONE_4_0 && TARGET_OS_IPHONE
+	query.accessibility = (__bridge NSString *)([self accessibilityType]);
+	#endif
     return [query fetchAll:error];
 }
 
