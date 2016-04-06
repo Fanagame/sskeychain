@@ -118,7 +118,9 @@ NSString *const kSSKeychainWhereKey = @"svce";
 
 
 + (void)setAccessibilityType:(CFTypeRef)accessibilityType {
-	CFRetain(accessibilityType);
+	if (accessibilityType) {
+		CFRetain(accessibilityType);
+	}
 	if (SSKeychainAccessibilityType) {
 		CFRelease(SSKeychainAccessibilityType);
 	}
